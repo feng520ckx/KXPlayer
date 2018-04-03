@@ -86,13 +86,22 @@ static char *const kKXPlayerTimeQueueString = "com.kxplayer.time.queue";
 }
 
 - (void)releasePlayer{
-    self.timeQueue=nil;
+   self.timeQueue=nil;
     [self.player removeTimeObserver:self.timeQueue];
+    [self.player pause];
+    self.player = nil;
+    self.timeQueue = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.currentItem removeObserver:self forKeyPath:kKXPlayerStateStatus];
-    [self.currentItem removeObserver:self forKeyPath:kKXPlayerStateLoadedTimeRanges];
-    [self.currentItem removeObserver:self forKeyPath:kKXPlayerStatePlaybackBufferEmpty];
-    [self.currentItem removeObserver:self forKeyPath:kKXPlayerStatePlaybackLikelyToKeepUp];
+    @try{
+        [self.currentItem removeObserver:self forKeyPath:kKXPlayerStateStatus];
+        [self.currentItem removeObserver:self forKeyPath:kKXPlayerStateLoadedTimeRanges];
+        [self.currentItem removeObserver:self forKeyPath:kKXPlayerStatePlaybackBufferEmpty];
+        [self.currentItem removeObserver:self forKeyPath:kKXPlayerStatePlaybackLikelyToKeepUp];
+        self.currentItem = nil;
+    }
+    @catch(NSException *exction){
+        NSLog(@"捕捉到异常--%@",exction);
+    }
     
 }
 
@@ -275,7 +284,7 @@ static char *const kKXPlayerTimeQueueString = "com.kxplayer.time.queue";
     
 }
 - (void)setCurrentItem:(AVPlayerItem *)currentItem{
-    if (_currentItem == currentItem)return;
+    if (_currentItem == currentItem ||(!currentItem))return;
 
     if (_currentItem) {
         [[NSNotificationCenter defaultCenter] removeObserver:self];
