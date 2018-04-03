@@ -107,7 +107,9 @@ static char *const kKXPlayerTimeQueueString = "com.kxplayer.time.queue";
 
 - (void)dealloc
 {
-    [self releasePlayer];
+   if(self.player||self.currentItem) {
+      [self releasePlayer];
+   }
 }
 
 #pragma mark KVO
